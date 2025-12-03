@@ -38,7 +38,7 @@ Instalação
 
 Clone o repositório:
 
-git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+git clone [[https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)](https://github.com/FelipeMzero/Notas-Academicas.git)
 cd seu-repositorio
 
 
