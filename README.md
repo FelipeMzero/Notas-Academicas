@@ -1,114 +1,56 @@
-🎓 Sistema de Controle Acadêmico BSI
 
-Um sistema web completo para gerenciamento de notas e acompanhamento de desempenho acadêmico, focado no curso de Bacharelado em Sistemas de Informação (BSI). O projeto utiliza uma arquitetura leve com Python (Flask) no backend e React no frontend, garantindo persistência de dados em JSON e atualizações em tempo real.
+## 💻 Visão Geral do Projeto
 
-📋 Funcionalidades Principais
+Um **sistema web completo** desenvolvido para o curso de **Bacharelado em Sistemas de Informação (BSI)**, focado em gerenciamento ágil de notas e acompanhamento acadêmico. Este projeto utiliza uma **arquitetura moderna** com **Backend em Python/Flask** e **Frontend em React (SPA)**, destacando-se pela atualização instantânea dos dados e persistência simplificada em arquivos JSON. Ideal para demonstrar proficiência em full-stack web development e manipulação de dados em tempo real. 
 
-Dashboard Interativo: Visão geral com gráficos e KPIs mostrando o progresso do curso (Disciplinas Aprovadas, Reprovadas, Cursando e Pendentes).
-
-Gestão de Notas em Tempo Real: Edição direta na tabela. Ao alterar uma nota, o sistema recalcula a média e atualiza o arquivo notas.json instantaneamente.
-
-Lógica de Recuperação Automática: O sistema identifica automaticamente se a nota de recuperação deve substituir a menor nota do semestre para o cálculo da média final.
-
-Persistência em JSON: Todos os dados são salvos em arquivos locais (notas.json), eliminando a necessidade de configurar bancos de dados complexos.
-
-Exportação de Relatórios: Funcionalidade para baixar o boletim completo em formato .csv (compatível com Excel).
-
-Design Responsivo: Interface moderna e adaptável para desktop e dispositivos móveis (Dark Mode).
-
-Auto-Refresh: O frontend sincroniza periodicamente com o backend para garantir que os dados estejam sempre atualizados.
-
-🛠️ Tecnologias Utilizadas
-
-Backend: Python, Flask, Pandas.
-
-Frontend: HTML5, Tailwind CSS, React (via CDN), Babel (Standalone), Recharts (Gráficos), Lucide (Ícones).
-
-Dados: JSON (Estrutura NoSQL simples).
-
-🚀 Como Executar o Projeto
-
-Pré-requisitos
-
-Python 3.x instalado.
-
-Pip (gerenciador de pacotes do Python).
-
-Instalação
-
-Clone o repositório:
-
-git clone [[https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)](https://github.com/FelipeMzero/Notas-Academicas.git)
-cd seu-repositorio
+[Image of a dashboard with interactive charts and KPI's]
 
 
-Instale as dependências:
+---
 
-pip install flask pandas
+## ✨ Destaques & Funcionalidades Principais
 
+| Ícone | Destaque | Descrição |
+| :---: | :--- | :--- |
+| 📊 | **Dashboard Interativo** | KPIs (Aprovadas, Reprovadas, Cursando, Pendentes) e gráficos animados (Recharts) para uma visualização rápida do progresso. |
+| ✏️ | **Edição em Tempo Real** | Altere notas diretamente na tabela. A média é **recalculada imediatamente** e o arquivo `notas.json` é **atualizado na hora**. |
+| 🧠 | **Lógica Inteligente de REC** | Implementação de uma regra de recuperação que **substitui automaticamente a menor nota** apenas se a nota de recuperação for superior a ela. |
+| 📁 | **Exportação de Boletim** | Geração e download de um boletim completo em formato **CSV**, compatível com Excel, Google Sheets e LibreOffice. |
+| 🌙 | **Interface Moderna** | Design limpo, responsivo e com suporte a **Dark Mode** (TailwindCSS) para uma melhor experiência do usuário. |
+| 🗃️ | **Persistência Simples (JSON)** | Sem a complexidade de um banco de dados SQL. Os dados são salvos em `disciplinas.json` e `notas.json`. |
 
-Execute o servidor:
+---
 
-python app.py
+## 🛠️ Tecnologias Utilizadas
 
+| Camada | Tecnologias | Descrição |
+| :---: | :--- | :--- |
+| **Backend** | **Python, Flask, Pandas** | Python como linguagem principal; Flask para a API leve; Pandas para o processamento e gerenciamento eficiente dos dados. |
+| **Frontend** | **React (CDN), TailwindCSS** | Frontend como Single Page Application (SPA); React para componentes dinâmicos; TailwindCSS para estilização utilitária e moderna. |
+| **Visualização** | **Recharts, Lucide Icons** | Recharts para gráficos interativos; Lucide Icons para ícones modernos. |
+| **Dados** | **JSON** | Armazenamento persistente e simples dos dados acadêmicos. |
 
-Acesse no navegador:
-Abra http://127.0.0.1:5000 em seu navegador favorito.
+---
 
-📂 Estrutura de Arquivos
+## 🚀 Como Executar Localmente
 
-/
-├── app.py                 # Servidor Flask (Lógica de Backend e API)
-├── disciplinas.json       # Estrutura estática do currículo (Matérias, Semestres)
-├── notas.json             # Banco de dados dinâmico (Salva as notas do aluno)
-├── index.html             # Frontend Único (Single Page Application com React)
-└── README.md              # Documentação do projeto
+Siga estes passos para configurar e executar o projeto em sua máquina.
 
+### 1. Clonar o Repositório
 
-⚙️ Funcionalidades da API
-
-O backend Flask expõe os seguintes endpoints:
-
-GET /: Renderiza a aplicação web.
-
-GET /api/dados: Retorna o JSON completo com disciplinas, notas e status calculados.
-
-POST /api/atualizar: Recebe atualizações de notas (codigo, campo, valor) e salva no arquivo JSON.
-
-GET /exportar_csv: Gera e baixa o arquivo CSV com o histórico atual.
-
-🧠 Lógica de Negócio
-
-O cálculo da situação do aluno segue as seguintes regras (configuradas em app.py):
-
-Média: (N1 + N2 + N3) / 3.
-
-Recuperação: Se houver nota de recuperação (rec > 0) e ela for maior que a menor das três notas parciais, ela substitui essa menor nota no cálculo da média.
-
-Status:
-
-APROVADO: Média ≥ 6.0.
-
-REPROVADO: Média < 6.0 (após recuperação).
-
-CURSANDO: Média parcial existe, mas o semestre não foi concluído (ex: falta N3).
-
-PENDENTE: Nenhuma nota lançada.
-
-🤝 Contribuição
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
-
-Faça um Fork do projeto.
-
-Crie sua Feature Branch (git checkout -b feature/NovaFuncionalidade).
-
-Commit suas mudanças (git commit -m 'Adicionando nova funcionalidade').
-
-Push para a Branch (git push origin feature/NovaFuncionalidade).
-
-Abra um Pull Request.
-
-📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+```bash
+git clone [https://github.com/FelipeMzero/Notas-Academicas.git](https://github.com/FelipeMzero/Notas-Academicas.git)
+cd Notas-Academicas
+2. Instalar DependênciasO projeto requer apenas Flask e Pandas no ambiente Python.Bashpip install flask pandas
+3. Executar o Servidor BackendInicie o servidor Flask:Bashpython app.py
+4. Acessar no NavegadorAbra a seguinte URL no seu navegador para ver a interface:[http://127.0.0.1:5000](http://127.0.0.1:5000)
+⚙️ Estrutura e Endpoints da APIEstrutura do Projeto/
+├── app.py                 # API + Lógica do Backend
+├── disciplinas.json       # Estrutura curricular do curso (dados estáticos)
+├── notas.json             # Base de dados dinâmica (notas dos alunos)
+├── index.html             # Frontend único (SPA com React)
+└── README.md              # Documentação
+Endpoints da APIMétodoEndpointFunçãoDados de Exemplo (Corpo)GET/Retorna a interface web principal (index.html).N/AGET/api/dadosRetorna o JSON completo com Disciplinas, Notas, Médias e Situação final para o Dashboard.N/APOST/api/atualizarRecebe e persiste a atualização de uma única nota no notas.json.{"codigo": "BSI0001", "campo": "n1", "valor": 8.5}GET/exportar_csvGera o boletim acadêmico completo e dispara o download em formato CSV.N/A🧠 Lógica de Negócio📘 Cálculo da MédiaA média é calculada com base nas três notas padrão:$$\text{Média} = \frac{\text{n1} + \text{n2} + \text{n3}}{3}$$🔁 Regra da RecuperaçãoA recuperação (REC) só é aplicada se:A nota de recuperação (REC) for maior que a menor nota anterior (n1, n2 ou n3).Se a condição for verdadeira, a REC substitui a menor nota original.A média final é recalculada com a nota substituída.🏁 Situação FinalA situação é determinada com base na média final, após a aplicação da regra de recuperação.SituaçãoRegra🟢 APROVADO$\text{Média} \ge 6.0$🔴 REPROVADO$\text{Média} < 6.0$🟡 CURSANDONotas incompletas (Falta n1, n2, ou n3, ou o campo $\text{REC}$ não foi preenchido quando necessário).⚪ PENDENTENenhum lançamento de nota (todos os campos de nota estão vazios/zero).🤝 Como ContribuirSua contribuição é muito bem-vinda! Siga o fluxo padrão do GitHub:Faça um Fork do projeto.Crie sua Feature Branch:Bashgit checkout -b feature/NovaFuncionalidade
+Commit suas Mudanças:Bashgit commit -m "Adiciona nova funcionalidade"
+Push para a Branch:Bashgit push origin feature/NovaFuncionalidade
+Abra um Pull Request 💡📄 LicençaDistribuído sob a licença MIT. Para mais detalhes, consulte o arquivo LICENSE.
