@@ -1,55 +1,13 @@
 [
-  {"codigo": "BSI0001", "nome": "FUNDAMENTOS DE TECNOLOGIA DIGITAL", "semestre": 1},
-  {"codigo": "BSI0002", "nome": "LÓGICA COMPUTACIONAL AVANÇADA", "semestre": 1},
-  {"codigo": "BSI0003", "nome": "INTRODUÇÃO À ARQUITETURA DIGITAL", "semestre": 1},
-  {"codigo": "BSI0005", "nome": "MÉTODOS E PRÁTICAS ACADÊMICAS", "semestre": 1},
-  {"codigo": "CORI0082", "nome": "PROGRAMAÇÃO ESTRUTURADA", "semestre": 1},
-
-  {"codigo": "BSI0006", "nome": "PARADIGMAS DE PROGRAMAÇÃO", "semestre": 2},
-  {"codigo": "BSI0007", "nome": "ALGORITMOS E ESTRUTURAS DE DADOS", "semestre": 2},
-  {"codigo": "BSI0008", "nome": "SISTEMAS DIGITAIS MODERNOS", "semestre": 2},
-  {"codigo": "BSI0009", "nome": "MATEMÁTICA APLICADA À COMPUTAÇÃO", "semestre": 2},
-  {"codigo": "BSI0010", "nome": "CÁLCULO DIFERENCIAL", "semestre": 2},
-
-  {"codigo": "CORI0040", "nome": "GEOMETRIA COMPUTACIONAL", "semestre": 3},
-  {"codigo": "CORI0041", "nome": "LABORATÓRIO DE APLICAÇÕES", "semestre": 3},
-  {"codigo": "CORI0042", "nome": "ESTRUTURAS AVANÇADAS DE DADOS", "semestre": 3},
-  {"codigo": "CORI0043", "nome": "FUNDAMENTOS DE SISTEMAS OPERACIONAIS", "semestre": 3},
-  {"codigo": "CORI0048", "nome": "CÁLCULO MULTIVARIADO", "semestre": 3},
-
-  {"codigo": "CORI0049", "nome": "AUTÔMATOS E COMPUTABILIDADE", "semestre": 4},
-  {"codigo": "CORI0050", "nome": "MODELAGEM E GERÊNCIA DE DADOS", "semestre": 4},
-  {"codigo": "CORI0051", "nome": "ANÁLISE DE REQUISITOS", "semestre": 4},
-  {"codigo": "CORI0052", "nome": "TECNOLOGIA E INOVAÇÃO DIGITAL", "semestre": 4},
-  {"codigo": "CORI0053", "nome": "ESTATÍSTICA COMPUTACIONAL", "semestre": 4},
-
-  {"codigo": "CORI0054", "nome": "DESENVOLVIMENTO WEB AVANÇADO", "semestre": 5},
-  {"codigo": "CORI0055", "nome": "PROJETO E MODELAGEM DE SOFTWARE", "semestre": 5},
-  {"codigo": "CORI0056", "nome": "REDES E COMUNICAÇÃO DE DADOS", "semestre": 5},
-  {"codigo": "CORI0057", "nome": "VISÃO COMPUTACIONAL", "semestre": 5},
-  {"codigo": "CORI0058", "nome": "GESTÃO DE TECNOLOGIA DA INFORMAÇÃO", "semestre": 5},
-
-  {"codigo": "CORI0059", "nome": "APLICAÇÕES PARA DISPOSITIVOS MÓVEIS", "semestre": 6},
-  {"codigo": "CORI0060", "nome": "DESIGN DE INTERAÇÃO", "semestre": 6},
-  {"codigo": "CORI0061", "nome": "SISTEMAS GRÁFICOS", "semestre": 6},
-  {"codigo": "CORI0062", "nome": "GESTÃO OPERACIONAL EM TI", "semestre": 6},
-  {"codigo": "CORI0063", "nome": "ADMINISTRAÇÃO DE REDES", "semestre": 6},
-
-  {"codigo": "CORI0064", "nome": "COMPORTAMENTO HUMANO NA TECNOLOGIA", "semestre": 7},
-  {"codigo": "CORI0066", "nome": "QUALIDADE E TESTES DE SOFTWARE", "semestre": 7},
-  {"codigo": "CORI0067", "nome": "AVALIAÇÃO DE SISTEMAS", "semestre": 7},
-  {"codigo": "CORI0068", "nome": "PROJETOS INTEGRADORES", "semestre": 7},
-  {"codigo": "CORI0069", "nome": "DESENVOLVIMENTO E IMPLANTAÇÃO", "semestre": 7},
-  {"codigo": "CORI0075", "nome": "PROJETO DE TCC I", "semestre": 7},
-
-  {"codigo": "CORI0070", "nome": "PRÁTICA PROFISSIONAL SUPERVISIONADA", "semestre": 8},
-  {"codigo": "CORI0072", "nome": "GESTÃO DE PROJETOS TECNOLÓGICOS", "semestre": 8},
-  {"codigo": "CORI0073", "nome": "ARQUITETURA DISTRIBUÍDA", "semestre": 8},
-  {"codigo": "CORI0074", "nome": "PRINCÍPIOS DE GOVERNANÇA EM TI", "semestre": 8},
-  {"codigo": "CORI0078", "nome": "APRENDIZADO DE MÁQUINA", "semestre": 8},
-  {"codigo": "CORI0079", "nome": "PROJETO DE TCC II", "semestre": 8},
-  {"codigo": "CORI0080", "nome": "SEGURANÇA CIBERNÉTICA", "semestre": 8},
-
-  {"codigo": "ENADE-I", "nome": "EXAME NACIONAL DE DESEMPENHO – INGRESSANTE", "semestre": 9},
-  {"codigo": "ENADE-C", "nome": "EXAME NACIONAL DE DESEMPENHO – CONCLUINTE", "semestre": 9}
+  {"codigo": "EF0001", "nome": "LÍNGUA PORTUGUESA", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0002", "nome": "MATEMÁTICA", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0003", "nome": "CIÊNCIAS", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0004", "nome": "HISTÓRIA", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0005", "nome": "GEOGRAFIA", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0006", "nome": "ARTE", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0007", "nome": "EDUCAÇÃO FÍSICA", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0008", "nome": "ENSINO RELIGIOSO", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0009", "nome": "LÍNGUA INGLESA", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0010", "nome": "PROJETO DE VIDA", "semestre": 9, "turma": "t09f01"},
+  {"codigo": "EF0011", "nome": "TECNOLOGIA E INOVAÇÃO", "semestre": 9, "turma": "t09f01"}
 ]

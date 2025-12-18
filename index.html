@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Acadêmico BSI (JSON)</title>
+    <title>Controle Acadêmico</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,27 +15,84 @@
     <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Ícones Lucide (Versão fixa para estabilidade) -->
+    <!-- Ícones Lucide -->
     <script src="https://unpkg.com/lucide@0.263.1"></script>
 
     <style>
-        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .input-grade { 
-            background: #1e293b; border: 1px solid #334155; color: white; 
-            width: 50px; text-align: center; border-radius: 4px; padding: 4px; font-size: 0.9rem;
+        body { 
+            background-color: #0f172a; 
+            color: #e2e8f0; 
+            font-family: 'Inter', system-ui, sans-serif; 
+            overflow-x: hidden;
         }
-        .input-grade:focus { outline: 2px solid #3b82f6; border-color: transparent; }
-        .input-rec {
-            background: #1e293b; border: 1px solid #ca8a04; color: #facc15; 
-            width: 50px; text-align: center; border-radius: 4px; padding: 4px; font-size: 0.9rem;
-        }
-        .input-rec:focus { outline: 2px solid #eab308; border-color: transparent; }
         
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .input-grade { 
+            background: rgba(15, 23, 42, 0.6); 
+            border: 1px solid #334155; 
+            color: white; 
+            width: 50px; 
+            text-align: center; 
+            border-radius: 6px; 
+            padding: 6px; 
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .input-grade:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); 
+        }
+        
+        .input-rec {
+            background: rgba(15, 23, 42, 0.6); 
+            border: 1px solid #ca8a04; 
+            color: #facc15; 
+            width: 50px; 
+            text-align: center; 
+            border-radius: 6px; 
+            padding: 6px; 
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .input-rec:focus { 
+            outline: none; 
+            border-color: #eab308; 
+            box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2); 
+        }
+        
+        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Snake Canvas Animation */
+        .snake-canvas-container {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+        .snake-canvas-container::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(45deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -44,7 +101,7 @@
     {% raw %}
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
-        const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } = Recharts;
+        const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, AreaChart, Area, XAxis, YAxis, CartesianGrid } = Recharts;
 
         // Base URL para evitar problemas de blob/file preview
         const getApiUrl = (endpoint) => {
@@ -53,11 +110,12 @@
             return `${baseUrl}${endpoint}`;
         };
 
+        // Cores vibrantes para o tema dark
         const COLORS = {
-            APROVADO: '#10b981', 
-            REPROVADO: '#ef4444', 
-            CURSANDO: '#f59e0b', 
-            PENDENTE: '#475569' 
+            APROVADO: '#10b981', // Emerald
+            REPROVADO: '#ef4444', // Red
+            CURSANDO: '#f59e0b', // Amber
+            PENDENTE: '#64748b'  // Slate
         };
 
         // --- COMPONENTE DE ÍCONE ---
@@ -71,19 +129,189 @@
                     if (ref.current) ref.current.innerHTML = svg;
                 }
             }, [name, size, className]);
-            return <span ref={ref} className="inline-flex items-center justify-center min-w-[18px] min-h-[18px]" />;
+            return <span ref={ref} className="inline-flex items-center justify-center" />;
+        };
+
+        // --- WIDGET SNAKE GAME (SIMULAÇÃO MULTI-ALVO) ---
+        const SnakeWidget = ({ approvedCount, cursandoList }) => {
+            const canvasRef = useRef(null);
+            const containerRef = useRef(null);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+
+                // Configuração responsiva
+                const resizeCanvas = () => {
+                    const parent = containerRef.current;
+                    if(parent) {
+                        canvas.width = parent.clientWidth;
+                        canvas.height = parent.clientHeight;
+                    }
+                };
+                window.addEventListener('resize', resizeCanvas);
+                resizeCanvas();
+
+                // Estado do Jogo
+                let snake = [];
+                const segmentSize = 8;
+                // Tamanho da cobra = Aprovadas (min 5 para visibilidade)
+                const snakeLength = Math.max(approvedCount, 5); 
+                
+                // Inicializa cobra
+                for(let i=0; i<snakeLength; i++) {
+                    snake.push({x: 50 - i*segmentSize, y: 100});
+                }
+
+                // Alvos (Disciplinas Cursando) - Cria um alvo por disciplina cursando
+                let targets = [];
+                // Se houver disciplinas cursando, cria uma bola para cada.
+                // Se não houver nenhuma, cria 1 bola genérica (META)
+                const targetCount = (cursandoList && cursandoList.length > 0) ? cursandoList.length : 1;
+
+                for (let i = 0; i < targetCount; i++) {
+                    targets.push({
+                        x: Math.random() * (canvas.width - 60) + 30, 
+                        y: Math.random() * (canvas.height - 60) + 30
+                    });
+                }
+
+                // Física simples
+                let velocity = {x: 2, y: 0};
+                const speed = 2.5;
+
+                const render = () => {
+                    // Limpa tela
+                    ctx.fillStyle = '#0f172a'; // Fundo
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Desenha Grid (Estética Retro)
+                    ctx.strokeStyle = '#1e293b';
+                    ctx.lineWidth = 1;
+                    const gridSize = 40;
+                    for(let x=0; x<canvas.width; x+=gridSize) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+                    for(let y=0; y<canvas.height; y+=gridSize) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+
+                    // Lógica de Movimento da IA (Perseguir Alvo Mais Próximo)
+                    const head = snake[0];
+                    
+                    // Encontrar o alvo mais próximo
+                    let closestTarget = targets[0];
+                    let minDistance = Infinity;
+
+                    targets.forEach(t => {
+                        const dx = t.x - head.x;
+                        const dy = t.y - head.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            closestTarget = t;
+                        }
+                    });
+
+                    // Calcular direção para o alvo mais próximo
+                    const dx = closestTarget.x - head.x;
+                    const dy = closestTarget.y - head.y;
+                    // minDistance já é a distância correta
+
+                    // Suavização de direção
+                    if (minDistance > 0) {
+                        velocity.x = (dx / minDistance) * speed;
+                        velocity.y = (dy / minDistance) * speed;
+                    }
+
+                    // Move Cabeça
+                    const newHead = { x: head.x + velocity.x, y: head.y + velocity.y };
+                    
+                    // Comportamento: "Sempre que chega perto de QUALQUER alvo, ele some"
+                    targets.forEach(t => {
+                        const distToTarget = Math.sqrt(Math.pow(t.x - newHead.x, 2) + Math.pow(t.y - newHead.y, 2));
+                        if (distToTarget < 40) {
+                            // Reposiciona este alvo específico
+                            t.x = Math.random() * (canvas.width - 100) + 50;
+                            t.y = Math.random() * (canvas.height - 100) + 50;
+                        }
+                    });
+
+                    // Atualiza corpo da cobra
+                    snake.unshift(newHead);
+                    if (snake.length > snakeLength) {
+                        snake.pop();
+                    }
+
+                    // Desenha Cobra
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    
+                    // Brilho
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#10b981';
+
+                    // Corpo
+                    ctx.beginPath();
+                    ctx.lineWidth = segmentSize;
+                    ctx.strokeStyle = '#10b981';
+                    ctx.moveTo(snake[0].x, snake[0].y);
+                    for(let i=1; i<snake.length; i++) {
+                        ctx.lineTo(snake[i].x, snake[i].y);
+                    }
+                    ctx.stroke();
+                    ctx.shadowBlur = 0; // Reset shadow
+
+                    // Cabeça
+                    ctx.fillStyle = '#ecfccb';
+                    ctx.beginPath();
+                    ctx.arc(newHead.x, newHead.y, segmentSize/2 + 2, 0, Math.PI*2);
+                    ctx.fill();
+
+                    // Desenha TODOS os Alvos
+                    ctx.fillStyle = '#f59e0b'; // Amber para Cursando
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#f59e0b';
+                    
+                    targets.forEach(t => {
+                        ctx.beginPath();
+                        ctx.arc(t.x, t.y, 6, 0, Math.PI*2);
+                        ctx.fill();
+                    });
+                    
+                    ctx.shadowBlur = 0;
+
+                    animationFrameId = window.requestAnimationFrame(render);
+                };
+
+                render();
+
+                return () => {
+                    window.cancelAnimationFrame(animationFrameId);
+                    window.removeEventListener('resize', resizeCanvas);
+                };
+            }, [approvedCount, cursandoList]);
+
+            return (
+                <div className="glass-panel rounded-xl p-1 relative h-64 md:h-full snake-canvas-container" ref={containerRef}>
+                    <canvas ref={canvasRef} className="block w-full h-full rounded-lg" />
+                    <div className="absolute top-4 left-4 bg-slate-900/80 px-3 py-1 rounded-full text-xs text-emerald-400 border border-emerald-500/30 backdrop-blur-sm">
+                        Cobra: {Math.max(approvedCount, 5)} blocos (Aprovadas)
+                    </div>
+                    <div className="absolute top-4 right-4 bg-slate-900/80 px-3 py-1 rounded-full text-xs text-amber-400 border border-amber-500/30 backdrop-blur-sm">
+                        Perseguindo: {cursandoList.length > 0 ? `${cursandoList.length} Disciplinas` : 'Meta'}
+                    </div>
+                </div>
+            );
         };
 
         // --- COMPONENTES UI ---
         const StatusBadge = ({ status }) => {
             const styles = {
-                "APROVADO": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-                "REPROVADO": "bg-red-500/10 text-red-400 border-red-500/20",
-                "CURSANDO": "bg-amber-500/10 text-amber-400 border-amber-500/20",
-                "PENDENTE": "bg-slate-700/50 text-slate-400 border-slate-600/50",
+                "APROVADO": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]",
+                "REPROVADO": "bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.1)]",
+                "CURSANDO": "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.1)]",
+                "PENDENTE": "bg-slate-700/30 text-slate-400 border-slate-600/30",
             };
             return (
-                <span className={`px-2 py-1 rounded text-xs font-bold border ${styles[status] || styles["PENDENTE"]}`}>
+                <span className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${styles[status] || styles["PENDENTE"]}`}>
                     {status}
                 </span>
             );
@@ -92,72 +320,61 @@
         const TabButton = ({ active, onClick, iconName, label, count }) => (
             <button 
                 onClick={onClick}
-                className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 border-b-2 transition-colors duration-200 whitespace-nowrap ${
+                className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-t-lg transition-all duration-300 whitespace-nowrap relative overflow-hidden ${
                     active 
-                    ? 'border-blue-500 text-blue-400 bg-slate-800/50' 
-                    : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
+                    ? 'text-white bg-slate-800 border-t border-x border-slate-700 font-bold' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
                 }`}
             >
+                {active && <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>}
                 <LucideIcon name={iconName} size={18} />
-                <span className="font-medium">{label}</span>
+                <span>{label}</span>
                 {count !== undefined && (
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${active ? 'bg-blue-500/20 text-blue-300' : 'bg-slate-700 text-slate-400'}`}>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${active ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-400'}`}>
                         {count}
                     </span>
                 )}
             </button>
         );
 
-        // Tabela de Disciplinas Reutilizável
+        // Tabela de Disciplinas Modernizada
         const DisciplineTable = ({ disciplines, onGradeChange }) => {
-            if (disciplines.length === 0) {
-                return <div className="p-8 text-center text-slate-500">Nenhum dado carregado. Verifique se o servidor Python está rodando.</div>;
-            }
+            if (disciplines.length === 0) return <div className="p-12 text-center text-slate-500 glass-panel rounded-xl">Nenhum dado encontrado.</div>;
 
             return (
-                <div className="overflow-x-auto rounded-lg border border-slate-700 bg-slate-800/50">
-                    <table className="w-full text-left text-sm text-slate-300">
-                        <thead className="bg-slate-900/80 text-slate-400 uppercase font-semibold">
-                            <tr>
-                                <th className="p-3 w-16 whitespace-nowrap">Sem.</th>
-                                <th className="p-3 whitespace-nowrap">Código</th>
-                                <th className="p-3 min-w-[200px] whitespace-nowrap">Disciplina</th>
-                                <th className="p-3 text-center whitespace-nowrap">N1</th>
-                                <th className="p-3 text-center whitespace-nowrap">N2</th>
-                                <th className="p-3 text-center whitespace-nowrap">N3</th>
-                                <th className="p-3 text-center text-yellow-500 whitespace-nowrap">Rec.</th>
-                                <th className="p-3 text-center whitespace-nowrap">Média</th>
-                                <th className="p-3 text-center whitespace-nowrap">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-700">
-                            {disciplines.map(disc => (
-                                <tr key={disc.codigo} className="hover:bg-slate-700/30 transition group">
-                                    <td className="p-3 text-slate-500 text-center whitespace-nowrap">{disc.semestre}º</td>
-                                    <td className="p-3 font-mono text-xs text-slate-500 whitespace-nowrap">{disc.codigo}</td>
-                                    <td className="p-3 font-medium text-slate-200 whitespace-nowrap">{disc.nome}</td>
-                                    <td className="p-3 text-center">
-                                        <input className="input-grade" type="text" inputMode="decimal" value={disc.n1 === 0 ? "" : disc.n1} 
-                                            onChange={(e) => onGradeChange(disc.codigo, 'n1', e.target.value)} />
-                                    </td>
-                                    <td className="p-3 text-center">
-                                        <input className="input-grade" type="text" inputMode="decimal" value={disc.n2 === 0 ? "" : disc.n2} 
-                                            onChange={(e) => onGradeChange(disc.codigo, 'n2', e.target.value)} />
-                                    </td>
-                                    <td className="p-3 text-center">
-                                        <input className="input-grade" type="text" inputMode="decimal" value={disc.n3 === 0 ? "" : disc.n3} 
-                                            onChange={(e) => onGradeChange(disc.codigo, 'n3', e.target.value)} />
-                                    </td>
-                                    <td className="p-3 text-center">
-                                        <input className="input-rec" type="text" inputMode="decimal" value={disc.rec === 0 ? "" : disc.rec} 
-                                            onChange={(e) => onGradeChange(disc.codigo, 'rec', e.target.value)} />
-                                    </td>
-                                    <td className="p-3 text-center font-bold text-white whitespace-nowrap">{disc.media}</td>
-                                    <td className="p-3 text-center whitespace-nowrap"><StatusBadge status={disc.status} /></td>
+                <div className="glass-panel rounded-xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm text-slate-300">
+                            <thead className="bg-slate-900/50 text-slate-400 uppercase font-bold text-xs tracking-wider border-b border-slate-700/50">
+                                <tr>
+                                    <th className="p-4 w-16 text-center">Sem.</th>
+                                    <th className="p-4">Código</th>
+                                    <th className="p-4 min-w-[220px]">Disciplina</th>
+                                    <th className="p-4 text-center w-20">N1</th>
+                                    <th className="p-4 text-center w-20">N2</th>
+                                    <th className="p-4 text-center w-20">N3</th>
+                                    <th className="p-4 text-center w-20 text-amber-500/80">Rec.</th>
+                                    <th className="p-4 text-center font-bold text-white">Média</th>
+                                    <th className="p-4 text-center">Status</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-700/30">
+                                {disciplines.map((disc, idx) => (
+                                    <tr key={disc.codigo} className="hover:bg-slate-700/20 transition-colors duration-150">
+                                        <td className="p-4 text-slate-500 text-center font-mono">{disc.semestre}º</td>
+                                        <td className="p-4 font-mono text-xs text-blue-400 font-bold">{disc.codigo}</td>
+                                        <td className="p-4 font-medium text-slate-200">{disc.nome}</td>
+                                        <td className="p-4 text-center"><input className="input-grade" type="text" inputMode="decimal" value={disc.n1 === 0 ? "" : disc.n1} onChange={(e) => onGradeChange(disc.codigo, 'n1', e.target.value)} /></td>
+                                        <td className="p-4 text-center"><input className="input-grade" type="text" inputMode="decimal" value={disc.n2 === 0 ? "" : disc.n2} onChange={(e) => onGradeChange(disc.codigo, 'n2', e.target.value)} /></td>
+                                        <td className="p-4 text-center"><input className="input-grade" type="text" inputMode="decimal" value={disc.n3 === 0 ? "" : disc.n3} onChange={(e) => onGradeChange(disc.codigo, 'n3', e.target.value)} /></td>
+                                        <td className="p-4 text-center"><input className="input-rec" type="text" inputMode="decimal" value={disc.rec === 0 ? "" : disc.rec} onChange={(e) => onGradeChange(disc.codigo, 'rec', e.target.value)} /></td>
+                                        <td className={`p-4 text-center font-bold text-lg ${parseFloat(disc.media) >= 6 ? 'text-emerald-400' : (parseFloat(disc.media) > 0 ? 'text-red-400' : 'text-slate-500')}`}>{disc.media}</td>
+                                        <td className="p-4 text-center"><StatusBadge status={disc.status} /></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             );
         };
@@ -170,25 +387,17 @@
             const [connectionError, setConnectionError] = useState(false);
             const [isLoading, setIsLoading] = useState(true);
 
-            // --- CARREGAR DADOS DO SERVIDOR ---
+            // --- CARREGAR DADOS ---
             const loadData = async () => {
                 setIsLoading(true);
                 try {
-                    // Tenta rota relativa primeiro, depois absoluta
                     let response;
-                    try {
-                        response = await fetch('/api/dados');
-                    } catch (e) {
-                        response = await fetch('http://127.0.0.1:5000/api/dados');
-                    }
-
+                    try { response = await fetch('/api/dados'); } catch (e) { response = await fetch('http://127.0.0.1:5000/api/dados'); }
                     if (!response.ok) throw new Error('Erro na resposta da API');
-                    
                     const data = await response.json();
                     setDisciplines(data);
                     setConnectionError(false);
                 } catch (error) {
-                    console.warn("Falha ao conectar:", error);
                     setConnectionError(true);
                 } finally {
                     setIsLoading(false);
@@ -200,70 +409,44 @@
                 if (window.lucide) window.lucide.createIcons();
             }, []);
 
-            // --- AUTO REFRESH (5 MIN) ---
+            // --- AUTO REFRESH ---
             useEffect(() => {
                 const interval = setInterval(() => {
                     const now = Date.now();
-                    if (now - lastInteraction > 300000) {
-                        window.location.reload();
-                    } else if (!connectionError) {
-                        loadData(); 
-                    }
+                    if (now - lastInteraction > 300000) window.location.reload();
+                    else if (!connectionError) loadData(); 
                 }, 30000); 
-
                 const updateInteraction = () => setLastInteraction(Date.now());
                 window.addEventListener('mousemove', updateInteraction);
                 window.addEventListener('keypress', updateInteraction);
-                return () => {
-                    clearInterval(interval);
-                    window.removeEventListener('mousemove', updateInteraction);
-                    window.removeEventListener('keypress', updateInteraction);
-                }
+                return () => { clearInterval(interval); window.removeEventListener('mousemove', updateInteraction); window.removeEventListener('keypress', updateInteraction); }
             }, [lastInteraction, connectionError]);
 
-            // --- CÁLCULO LOCAL PARA FEEDBACK ---
+            // --- LÓGICA DE CÁLCULO LOCAL ---
             const calculateLocalStats = (disc) => {
-                let n1 = parseFloat(disc.n1) || 0;
-                let n2 = parseFloat(disc.n2) || 0;
-                let n3 = parseFloat(disc.n3) || 0;
-                let rec = parseFloat(disc.rec) || 0;
+                let n1 = parseFloat(disc.n1) || 0, n2 = parseFloat(disc.n2) || 0, n3 = parseFloat(disc.n3) || 0, rec = parseFloat(disc.rec) || 0;
                 let notas = [n1, n2, n3];
-                
                 if (rec > 0) {
                     const minNota = Math.min(...notas);
-                    if (rec > minNota) {
-                        notas[notas.indexOf(minNota)] = rec;
-                    }
+                    if (rec > minNota) notas[notas.indexOf(minNota)] = rec;
                 }
-                
                 const mediaVal = (notas.reduce((a, b) => a + b, 0) / 3);
                 const media = mediaVal.toFixed(2);
-                
                 let status = "PENDENTE";
                 if (n1 === 0 && n2 === 0 && n3 === 0 && rec === 0) status = "PENDENTE";
                 else if (mediaVal >= 6.0) status = "APROVADO";
                 else if (n3 === 0 && rec === 0) status = "CURSANDO";
                 else status = "REPROVADO";
-                
                 return { media, status };
             };
 
             const handleGradeChange = async (codigo, field, value) => {
-                // 1. Substitui vírgula por ponto para o padrão numérico
                 const cleanValue = value.replace(',', '.');
+                if (cleanValue !== "" && !/^[0-9]*\.?[0-9]*$/.test(cleanValue)) return;
 
-                // 2. Validação Flexível (Regex):
-                // Permite números inteiros, decimais, ou vazio.
-                // Aceita "8.", ".5", "8.5" enquanto digita.
-                if (cleanValue !== "" && !/^[0-9]*\.?[0-9]*$/.test(cleanValue)) {
-                    return; // Ignora se não for número válido
-                }
-
-                // 3. Atualização Otimista
                 setDisciplines(prev => prev.map(d => {
                     if (d.codigo === codigo) {
                         const updated = { ...d, [field]: cleanValue };
-                        // Se for um número completo, calcula stats
                         if (!isNaN(parseFloat(cleanValue))) {
                             const stats = calculateLocalStats(updated);
                             return { ...updated, ...stats };
@@ -273,37 +456,22 @@
                     return d;
                 }));
 
-                // 4. Envia para o Servidor
                 try {
                     let url = '/api/atualizar';
                     try { new URL(url, window.location.href); if (window.location.protocol === 'file:' || window.location.protocol === 'blob:') throw new Error(); } catch { url = 'http://127.0.0.1:5000/api/atualizar'; }
-
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ code: codigo, field, value: cleanValue })
-                    });
-                    
-                    if (!res.ok) throw new Error('Falha ao salvar');
-
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: codigo, field, value: cleanValue }) });
+                    if (!res.ok) throw new Error('Falha');
                     const result = await res.json();
                     if (result.success) {
-                        // Atualiza confirmação do servidor APENAS se o campo não estiver em foco (opcional)
-                        // ou atualiza tudo para garantir consistência
-                        setDisciplines(prev => prev.map(d => 
-                            d.codigo === codigo ? { ...d, media: result.data.media, status: result.data.status } : d
-                        ));
+                        setDisciplines(prev => prev.map(d => d.codigo === codigo ? { ...d, media: result.data.media, status: result.data.status } : d));
                         setConnectionError(false);
                     }
-                } catch (error) { 
-                    setConnectionError(true);
-                }
+                } catch (error) { setConnectionError(true); }
             };
 
-            // Filtragem e Stats
             const getFilteredDisciplines = () => {
                 let filtered = [];
-                const searchLower = searchTerm.toLowerCase();
+                const s = searchTerm.toLowerCase();
                 switch(activeTab) {
                     case 'aprovadas': filtered = disciplines.filter(d => d.status === 'APROVADO'); break;
                     case 'reprovadas': filtered = disciplines.filter(d => d.status === 'REPROVADO'); break;
@@ -311,58 +479,50 @@
                     case 'geral': filtered = [...disciplines]; break;
                     default: return [];
                 }
-                if (searchTerm) {
-                    filtered = filtered.filter(d => d.nome.toLowerCase().includes(searchLower) || d.codigo.toLowerCase().includes(searchLower));
-                }
+                if (s) filtered = filtered.filter(d => d.nome.toLowerCase().includes(s) || d.codigo.toLowerCase().includes(s));
                 return filtered;
             };
 
             const stats = useMemo(() => {
-                return disciplines.reduce((acc, curr) => {
-                    acc[curr.status] = (acc[curr.status] || 0) + 1;
-                    return acc;
-                }, {});
+                return disciplines.reduce((acc, curr) => { acc[curr.status] = (acc[curr.status] || 0) + 1; return acc; }, {});
             }, [disciplines]);
 
             const pieData = [
-                { name: 'Aprovado', value: stats['APROVADO'] || 0, fill: '#10b981' },
-                { name: 'Reprovado', value: stats['REPROVADO'] || 0, fill: '#ef4444' },
-                { name: 'Cursando', value: stats['CURSANDO'] || 0, fill: '#f59e0b' },
-                { name: 'Pendente', value: stats['PENDENTE'] || 0, fill: '#475569' },
+                { name: 'Aprovado', value: stats['APROVADO'] || 0, fill: COLORS.APROVADO },
+                { name: 'Reprovado', value: stats['REPROVADO'] || 0, fill: COLORS.REPROVADO },
+                { name: 'Cursando', value: stats['CURSANDO'] || 0, fill: COLORS.CURSANDO },
+                { name: 'Pendente', value: stats['PENDENTE'] || 0, fill: COLORS.PENDENTE },
             ];
 
+            const cursandoList = useMemo(() => disciplines.filter(d => d.status === 'CURSANDO'), [disciplines]);
             const filteredList = getFilteredDisciplines();
 
-            // --- RENDERIZAÇÃO ---
-            if (isLoading) {
-                return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-blue-400">Carregando dados...</div>;
-            }
+            // --- TELAS ---
+            if (isLoading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-blue-400 font-bold animate-pulse">Iniciando Sistema...</div>;
 
-            if (connectionError && disciplines.length === 0) {
-                return (
-                    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-red-400 space-y-4">
-                        <LucideIcon name="WifiOff" size={48} />
-                        <h2 className="text-xl font-bold">Servidor Desconectado</h2>
-                        <p className="text-slate-400 text-center px-4">Verifique se o <code>app.py</code> está rodando.</p>
-                        <button onClick={loadData} className="px-4 py-2 bg-slate-800 rounded hover:bg-slate-700 text-white border border-slate-600 transition">Tentar Novamente</button>
-                    </div>
-                );
-            }
+            if (connectionError && disciplines.length === 0) return (
+                <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-red-400 space-y-6">
+                    <div className="bg-red-500/10 p-6 rounded-full border border-red-500/20"><LucideIcon name="WifiOff" size={64} /></div>
+                    <div className="text-center"><h2 className="text-2xl font-bold mb-2">Sistema Offline</h2><p className="text-slate-400">Inicie o servidor Flask (<code>python app.py</code>) para continuar.</p></div>
+                    <button onClick={loadData} className="px-6 py-3 bg-slate-800 rounded-lg hover:bg-slate-700 text-white border border-slate-600 transition shadow-lg hover:shadow-blue-500/20">Reconectar</button>
+                </div>
+            );
 
             return (
-                <div className="min-h-screen pb-10 bg-slate-950">
-                    <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+                <div className="min-h-screen pb-10 bg-slate-950 text-slate-200">
+                    <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50">
                         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <h1 className="text-2xl font-bold text-blue-500 flex items-center gap-2">
-                                <LucideIcon name="BookOpen" className="text-blue-500" />
-                                Sistema Acadêmico
-                                {connectionError && <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded ml-2 border border-red-500/30 flex items-center gap-1"><LucideIcon name="WifiOff" size={12}/> Offline</span>}
+                            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 flex items-center gap-2">
+                                <LucideIcon name="BookOpen" className="text-blue-400" />
+                                Sistema Acadêmico <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">v2.0</span>
                             </h1>
                             <div className="flex gap-2">
-                                <a href={getApiUrl('/exportar_csv')} className="text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded flex items-center gap-2 transition border border-slate-700">Baixar CSV</a>
+                                <a href={getApiUrl('/exportar_csv')} className="text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition border border-slate-700 shadow-sm hover:shadow-md">
+                                    <LucideIcon name="Download" size={16} /> Relatório CSV
+                                </a>
                             </div>
                         </div>
-                        <div className="max-w-7xl mx-auto px-4 md:px-6 flex gap-1 overflow-x-auto no-scrollbar">
+                        <div className="max-w-7xl mx-auto px-4 md:px-6 flex gap-1 overflow-x-auto no-scrollbar pt-2">
                             <TabButton active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} iconName="Home" label="Dashboard" />
                             <TabButton active={activeTab === 'aprovadas'} onClick={() => { setActiveTab('aprovadas'); setSearchTerm(''); }} iconName="CheckCircle" label="Aprovadas" count={stats['APROVADO']} />
                             <TabButton active={activeTab === 'cursando'} onClick={() => { setActiveTab('cursando'); setSearchTerm(''); }} iconName="Clock" label="Cursando" count={stats['CURSANDO']} />
@@ -374,63 +534,109 @@
                     <main className="max-w-7xl mx-auto p-4 md:p-6 fade-in">
                         {activeTab === 'dashboard' ? (
                             <div className="space-y-8">
+                                {/* KPIS */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg flex justify-between">
-                                        <div><p className="text-slate-400 text-xs uppercase">Aprovadas</p><h3 className="text-4xl font-bold text-emerald-400 mt-2">{stats['APROVADO'] || 0}</h3></div>
-                                        <div className="p-3 bg-emerald-500/10 rounded-lg"><LucideIcon name="CheckCircle" className="text-emerald-500" size={24} /></div>
-                                    </div>
-                                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg flex justify-between">
-                                        <div><p className="text-slate-400 text-xs uppercase">Cursando</p><h3 className="text-4xl font-bold text-amber-400 mt-2">{stats['CURSANDO'] || 0}</h3></div>
-                                        <div className="p-3 bg-amber-500/10 rounded-lg"><LucideIcon name="Clock" className="text-amber-500" size={24} /></div>
-                                    </div>
-                                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg flex justify-between">
-                                        <div><p className="text-slate-400 text-xs uppercase">Pendente</p><h3 className="text-4xl font-bold text-slate-300 mt-2">{stats['PENDENTE'] || 0}</h3></div>
-                                        <div className="p-3 bg-slate-700/30 rounded-lg"><LucideIcon name="BookOpen" className="text-slate-400" size={24} /></div>
-                                    </div>
+                                    {[
+                                        { title: "Aprovadas", value: stats['APROVADO'] || 0, color: "emerald", icon: "CheckCircle" },
+                                        { title: "Cursando", value: stats['CURSANDO'] || 0, color: "amber", icon: "Clock" },
+                                        { title: "Pendentes", value: stats['PENDENTE'] || 0, color: "slate", icon: "BookOpen" }
+                                    ].map((kpi, idx) => (
+                                        <div key={idx} className="glass-panel p-6 rounded-2xl flex justify-between items-center group hover:bg-slate-800/80 transition-colors">
+                                            <div>
+                                                <p className={`text-${kpi.color}-400/80 text-xs font-bold uppercase tracking-wider mb-1`}>{kpi.title}</p>
+                                                <h3 className={`text-4xl font-bold text-white group-hover:scale-105 transition-transform`}>{kpi.value}</h3>
+                                            </div>
+                                            <div className={`p-4 bg-${kpi.color}-500/10 rounded-xl border border-${kpi.color}-500/20`}>
+                                                <LucideIcon name={kpi.icon} className={`text-${kpi.color}-400`} size={28} />
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    <div className="md:col-span-1 bg-slate-800 p-6 rounded-xl border border-slate-700 h-80">
-                                        <h3 className="text-lg font-semibold text-slate-200 mb-4">Visão Geral</h3>
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                                    {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
-                                                </Pie>
-                                                <Tooltip contentStyle={{backgroundColor: '#1e293b', border: 'none', borderRadius: '8px'}} />
-                                                <Legend verticalAlign="bottom" height={36} />
-                                            </PieChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                    <div className="md:col-span-2 bg-slate-800 p-6 rounded-xl border border-slate-700">
-                                        <h3 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                                            <LucideIcon name="AlertTriangle" className="text-red-400" size={20} />
-                                            Atenção - Reprovações
-                                        </h3>
-                                        <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
-                                            {disciplines.filter(d => d.status === 'REPROVADO').length === 0 ? (
-                                                <p className="text-slate-500 italic">Nenhuma reprovação registrada.</p>
-                                            ) : (
-                                                disciplines.filter(d => d.status === 'REPROVADO').map(disc => (
-                                                    <div key={disc.codigo} className="bg-slate-900/50 p-4 rounded border-l-4 border-red-500 flex justify-between items-center">
-                                                        <div><span className="font-bold text-slate-200 block">{disc.nome}</span><span className="text-xs text-slate-500 font-mono">{disc.codigo}</span></div>
-                                                        <div className="text-right"><span className="text-red-400 font-bold block">{disc.media}</span><span className="text-xs text-slate-500">Média Final</span></div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* SNAKE GAME WIDGET */}
+                                    <div className="lg:col-span-2 space-y-6">
+                                        <div className="glass-panel rounded-2xl p-1 shadow-lg border border-emerald-500/20">
+                                            <div className="bg-slate-900/50 rounded-xl overflow-hidden relative" style={{ height: '320px' }}>
+                                                <SnakeWidget approvedCount={stats['APROVADO'] || 0} cursandoList={cursandoList} />
+                                            </div>
+                                        </div>
+                                        
+                                        {/* ALERTAS */}
+                                        <div className="glass-panel p-6 rounded-2xl">
+                                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                                <LucideIcon name="AlertTriangle" className="text-red-400" size={20} />
+                                                Atenção Necessária
+                                            </h3>
+                                            <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                                                {disciplines.filter(d => d.status === 'REPROVADO').length === 0 ? (
+                                                    <div className="flex items-center gap-3 text-emerald-400/80 bg-emerald-500/5 p-4 rounded-lg border border-emerald-500/10">
+                                                        <LucideIcon name="Check" size={18} />
+                                                        <span className="text-sm">Nenhuma reprovação pendente. Excelente trabalho!</span>
                                                     </div>
-                                                ))
-                                            )}
+                                                ) : (
+                                                    disciplines.filter(d => d.status === 'REPROVADO').map(disc => (
+                                                        <div key={disc.codigo} className="bg-red-500/5 hover:bg-red-500/10 transition p-4 rounded-lg border-l-4 border-red-500 flex justify-between items-center group">
+                                                            <div>
+                                                                <span className="font-bold text-slate-200 block group-hover:text-red-300 transition">{disc.nome}</span>
+                                                                <span className="text-xs text-slate-500 font-mono">{disc.codigo}</span>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <span className="text-red-400 font-bold block text-lg">{disc.media}</span>
+                                                                <span className="text-[10px] uppercase text-slate-500">Média Final</span>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* GRÁFICO */}
+                                    <div className="glass-panel p-6 rounded-2xl flex flex-col">
+                                        <h3 className="text-lg font-bold text-white mb-6">Distribuição</h3>
+                                        <div className="flex-1 min-h-[250px]">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <PieChart>
+                                                    <Pie 
+                                                        data={pieData} 
+                                                        cx="50%" cy="50%" 
+                                                        innerRadius={60} 
+                                                        outerRadius={80} 
+                                                        paddingAngle={5} 
+                                                        dataKey="value"
+                                                        stroke="none"
+                                                    >
+                                                        {pieData.map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                                        ))}
+                                                    </Pie>
+                                                    <Tooltip 
+                                                        contentStyle={{backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff'}} 
+                                                        itemStyle={{color: '#fff'}}
+                                                    />
+                                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                                </PieChart>
+                                            </ResponsiveContainer>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="space-y-6 fade-in">
-                                <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-800 p-4 rounded-lg border border-slate-700">
-                                    <div>
-                                        <h2 className="text-xl font-bold text-white capitalize">{activeTab}</h2>
-                                        <p className="text-slate-400 text-sm">{filteredList.length} disciplina(s) encontrada(s)</p>
+                                <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-lg bg-${activeTab === 'aprovadas' ? 'emerald' : activeTab === 'reprovadas' ? 'red' : 'blue'}-500/10`}>
+                                            <LucideIcon name={activeTab === 'aprovadas' ? 'CheckCircle' : activeTab === 'reprovadas' ? 'XCircle' : 'List'} size={20} className="text-white" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-white capitalize">{activeTab}</h2>
+                                            <p className="text-slate-400 text-xs">{filteredList.length} registros</p>
+                                        </div>
                                     </div>
-                                    <div className="relative w-full md:w-96">
-                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"><LucideIcon name="Search" size={18} /></div>
-                                        <input type="text" placeholder="Pesquisar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg py-2 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-blue-500 transition-colors" />
+                                    <div className="relative w-full md:w-96 group">
+                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors"><LucideIcon name="Search" size={18} /></div>
+                                        <input type="text" placeholder="Filtrar por nome ou código..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-900/80 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600" />
                                     </div>
                                 </div>
                                 <DisciplineTable disciplines={filteredList} onGradeChange={handleGradeChange} />

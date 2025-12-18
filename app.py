@@ -5,13 +5,13 @@ import time
 import json
 import os
 
-# Define a pasta base como a pasta onde este arquivo (app.py) está localizado
+# Define a pasta base como a pasta onde este ficheiro (app.py) está localizado
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Configura o Flask para procurar templates na pasta atual
 app = Flask(__name__, template_folder=BASE_DIR, static_folder=BASE_DIR)
 
-# Caminhos absolutos para os arquivos JSON (evita erros de arquivo não encontrado)
+# Caminhos absolutos para os ficheiros JSON (evita erros de ficheiro não encontrado)
 ARQUIVO_DISCIPLINAS = os.path.join(BASE_DIR, 'disciplinas.json')
 ARQUIVO_NOTAS = os.path.join(BASE_DIR, 'notas.json')
 
@@ -137,9 +137,9 @@ def carregar_dados():
 
 def salvar_notas_json(codigo, n1, n2, n3, rec):
     """
-    Lê o arquivo atual, atualiza a entrada específica e salva de volta.
+    Lê o ficheiro atual, atualiza a entrada específica e salva de volta.
     """
-    # Lê o estado atual do arquivo para não perder outras disciplinas
+    # Lê o estado atual do ficheiro para não perder outras disciplinas
     if os.path.exists(ARQUIVO_NOTAS):
         with open(ARQUIVO_NOTAS, 'r', encoding='utf-8') as f:
             try:
@@ -193,7 +193,7 @@ def atualizar_nota():
         # Atualiza o campo no objeto em memória
         disciplina_alvo[campo] = novo_valor
         
-        # 3. Salva no arquivo JSON (Persistência)
+        # 3. Salva no ficheiro JSON (Persistência)
         salvar_notas_json(
             codigo, 
             disciplina_alvo['n1'], 
@@ -241,12 +241,12 @@ def exportar_csv():
         return send_file(
             buffer,
             as_attachment=True,
-            download_name=f'Boletim_BSI_{int(time.time())}.csv',
+            download_name=f'Boletim_{int(time.time())}.csv',
             mimetype='text/csv'
         )
     except Exception as e:
         return str(e), 500
 
 if __name__ == '__main__':
-    # debug=True permite recarregar o servidor ao salvar o arquivo
+    # debug=True permite recarregar o servidor ao salvar o ficheiro
     app.run(debug=True, port=5000)
