@@ -135,15 +135,12 @@ A situação é determinada com base na média final, após a aplicação da reg
 
 -----
 
-## 📄 Licença
+## 
 
-Distribuído sob a licença **MIT**.
 
-O texto da licença MIT completo geralmente reside no arquivo `LICENSE` no repositório, mas para referência rápida, segue o formato padrão:
 
 ```
 MIT License
 
 ```
 
-*Lembre-se de criar o arquivo `LICENSE` separado em seu repositório com o conteúdo acima, substituindo `[Ano]` e `[Seu Nome ou Nome da Organização]`.*
