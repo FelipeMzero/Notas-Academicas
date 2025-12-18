@@ -1,12 +1,9 @@
-# 🎓 Sistema de Controle Acadêmico – BSI
+# 🎓 Sistema de Controle Acadêmico
 
 ## 💻 Visão Geral do Projeto
 
-Um **sistema web completo** desenvolvido para o curso de **Bacharelado em Sistemas de Informação (BSI)**, focado em gerenciamento ágil de notas e acompanhamento acadêmico. Este projeto utiliza uma **arquitetura moderna** com **Backend em Python/Flask** e **Frontend em React (SPA)**, destacando-se pela atualização instantânea dos dados e persistência simplificada em arquivos JSON. Ideal para demonstrar proficiência em full-stack web development e manipulação de dados em tempo real. 
+Um **sistema web completo** desenvolvido para ter um controle alternativo das notas, focado em gerenciamento ágil de notas e acompanhamento acadêmico. Este projeto utiliza uma **arquitetura moderna** com **Backend em Python/Flask** e **Frontend em React (SPA)**, destacando-se pela atualização instantânea dos dados e persistência simplificada em arquivos JSON. Ideal para demonstrar proficiência em full-stack web development e manipulação de dados em tempo real. 
 
-
-
-[Image of a dashboard with interactive charts and KPI's]
 
 
 ---
@@ -42,7 +39,7 @@ Siga estes passos para configurar e executar o projeto em sua máquina.
 ### 1. Clonar o Repositório
 
 ```bash
-git clone [https://github.com/FelipeMzero/Notas-Academicas.git](https://github.com/FelipeMzero/Notas-Academicas.git)
+git clone https://github.com/FelipeMzero/Notas-Academicas.git
 cd Notas-Academicas
 ```
 
@@ -51,7 +48,7 @@ cd Notas-Academicas
 O projeto requer apenas **Flask** e **Pandas** no ambiente Python.
 
 ```bash
-pip install flask pandas
+pip install -r requirements.txt
 ```
 
 ### 3\. Executar o Servidor Backend
@@ -67,7 +64,7 @@ python app.py
 Abra a seguinte URL no seu navegador para ver a interface:
 
 ```
-[http://127.0.0.1:5000](http://127.0.0.1:5000)
+http://127.0.0.1:5000
 ```
 
 -----
@@ -78,11 +75,24 @@ Abra a seguinte URL no seu navegador para ver a interface:
 
 ```
 /
-├── app.py                 # API + Lógica do Backend
-├── disciplinas.json       # Estrutura curricular do curso (dados estáticos)
-├── notas.json             # Base de dados dinâmica (notas dos alunos)
-├── index.html             # Frontend único (SPA com React)
-└── README.md              # Documentação
+├── app.py                 # Servidor Flask (Backend). Contém a lógica de cálculo de médias, 
+│                          # gestão de rotas da API, configuração de CORS e persistência nos ficheiros JSON.
+│
+├── index.html             # Interface do Utilizador (Frontend). Uma Single Page Application (SPA) 
+│                          # construída com React, Tailwind CSS e Recharts. Inclui o Dashboard gamificado,
+│                          # tabelas de notas editáveis e lógica de conexão com o backend.
+│
+├── disciplinas.json       # Base de Dados Estática. Contém a lista imutável de todas as disciplinas 
+│                          # do curso, códigos e semestres ideais.
+│
+├── notas.json             # Base de Dados Dinâmica. Armazena as notas (N1, N2, N3, Rec) do aluno. 
+│                          # É atualizado automaticamente pelo app.py quando editas no navegador.
+│
+├── requirements.txt       # Dependências do Python. Lista as bibliotecas necessárias para rodar o projeto 
+│                          # (flask, pandas).
+│
+└── README.md              # Documentação. Guia completo sobre como instalar, rodar e usar o sistema, 
+                           # incluindo explicações sobre a lógica de aprovação.       # Documentação
 ```
 
 ### Endpoints da API
@@ -122,27 +132,6 @@ A situação é determinada com base na média final, após a aplicação da reg
 | 🔴 **REPROVADO** | $\text{Média} < 6.0$ |
 | 🟡 **CURSANDO** | Notas incompletas (Falta n1, n2, ou n3, ou o campo $\text{REC}$ não foi preenchido quando necessário). |
 | ⚪ **PENDENTE** | Nenhum lançamento de nota (todos os campos de nota estão vazios/zero). |
-
------
-
-## 🤝 Como Contribuir
-
-Sua contribuição é muito bem-vinda\! Siga o fluxo padrão do GitHub:
-
-1.  **Faça um Fork** do projeto.
-2.  **Crie sua Feature Branch:**
-    ```bash
-    git checkout -b feature/NovaFuncionalidade
-    ```
-3.  **Commit suas Mudanças:**
-    ```bash
-    git commit -m "Adiciona nova funcionalidade"
-    ```
-4.  **Push para a Branch:**
-    ```bash
-    git push origin feature/NovaFuncionalidade
-    ```
-5.  **Abra um Pull Request** 💡
 
 -----
 
